@@ -23,4 +23,26 @@ class HomeController @Inject()(repository: PersonRepository,
     }
   }
 
+  // レコード追加画面の表示
+  def add() = Action { implicit request =>
+    Ok(views.html.add(
+      "フォームを入力してください。",
+      Person.personForm
+    ))
+  }
+
+  // レコード追加処理
+  def create() = Action.async { implicit request =>
+    Person.personForm.bindFromRequest.fold(
+      errorForm => {
+        Future.successful(Ok(views.html.add("error.", errorForm)))
+      },
+      person => {
+        repository.create(person.name, person.mail, person.tel).map { _ =>
+          Redirect(routes.HomeController.index)
+        }
+      }
+    )
+  }
+
 }
