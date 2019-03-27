@@ -1,5 +1,10 @@
-@()
+@(message: String, data:Seq[models.Person])(implicit request: MessagesRequestHeader)
 
-@main("Welcome to Play") {
-  <h1>Welcome to Play2.6!</h1>
+@main("Index Page", "Hello", "copyright 2019.") {
+  <p>@Html(message)</p>
+  <ul>
+    @for(item<-data){
+      <li>@item.id: @item.name [@item.mail, @item.tel]</li>
+    }
+  </ul>
 }
