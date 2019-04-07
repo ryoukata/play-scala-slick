@@ -36,4 +36,23 @@ class PersonRepository @Inject()
       people += Person(0, name, mail, tel)
     )
 
+  // 特定のIDのレコードを検索して返す
+  def get(id: Int): Future[Person] = db.run {
+    people.filter(_.id === id).result.head
+  }
+
+  // レコード更新処理（レコードの追加も可能。IDを見て存在しなければ追加、存在すれば更新）
+  def update(id: Int, name: String, mail: String, tel: String): Future[Int] = {
+    db.run(
+      people.insertOrUpdate(Person(id, name, mail, tel))
+    )
+  }
+
+  // レコードの削除
+  def delete(id: Int): Future[Int] = {
+    db.run(
+      people.filter(_.id === id).delete
+    )
+  }
+
 }
