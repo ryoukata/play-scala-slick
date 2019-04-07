@@ -33,13 +33,15 @@ class HomeController @Inject()(repository: PersonRepository,
 
   // レコード追加処理
   def create() = Action.async { implicit request =>
+    // foldメソッドのエラー処理でバリデーションチェックが可能
     Person.personForm.bindFromRequest.fold(
       errorForm => {
         Future.successful(Ok(views.html.add("error.", errorForm)))
       },
       person => {
         repository.create(person.name, person.mail, person.tel).map { _ =>
-          Redirect(routes.HomeController.index)
+          // flashingでフラッシュメッセージの表示（キーと値を設定し、キーを指定して表示する）
+          Redirect(routes.HomeController.index).flashing("success"->"エンティティを作成しました！")
         }
       }
     )

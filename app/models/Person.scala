@@ -5,10 +5,17 @@ import play.api.data.Forms._
 
 object Person {
   val personForm: Form[PersonForm] = Form {
+    // バリデーションチェックが可能(verifyingを使って細かな設定をしている)
     mapping(
-      "name" -> text,
-      "mail" -> text,
-      "tel" -> text
+      "name" -> nonEmptyText
+          .verifying(error="3文字以上に。", constraint=_.length >= 3)
+          .verifying(error="10文字以内に。", constraint=_.length <= 10),
+      "mail" -> text
+          .verifying(error="メールアドレスを入力。",
+            constraint=_.matches("""([a-zA-Z0-9\.\_-]+)@([a-zA-Z0-9\.\_-]+)""")
+          ),
+      "tel" -> nonEmptyText
+          .verifying(error="半角の数値とハイフンのみ入力可。", constraint=_.matches("""[1-9-]+"""))
     )(PersonForm.apply)(PersonForm.unapply)
   }
 
