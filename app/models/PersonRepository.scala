@@ -27,7 +27,7 @@ class PersonRepository @Inject()
   private val people = TableQuery[PeopleTable]
 
   def list(): Future[Seq[Person]] = db.run {
-    people.result
+    people.sortBy(_.name.asc).result
   }
 
   // レコードの追加
@@ -53,6 +53,13 @@ class PersonRepository @Inject()
     db.run(
       people.filter(_.id === id).delete
     )
+  }
+
+  // 検索機能（あいまい検索）
+  def find(s: String): Future[Seq[Person]] = db.run {
+    // people.filter(_.name like "%" + s + "%").result
+    // 複数条件
+    people.filter(p => (p.name like "%" + s + "%") || (p.mail like "%" + s + "%")).result
   }
 
 }

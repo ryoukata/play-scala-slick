@@ -94,4 +94,27 @@ class HomeController @Inject()(repository: PersonRepository,
     }
   }
 
+  // レコードの検索画面の表示
+  def find() = Action { implicit request =>
+      Ok(views.html.find(
+        "Find Data.", Person.personFind, Seq[Person]()
+      ))
+  }
+
+  // レコードの検索
+  def search() = Action.async { implicit request =>
+    Person.personFind.bindFromRequest.fold(
+      errorForm => {
+        Future.successful(Ok(views.html.find("error.", errorForm, Seq[Person]())))
+      },
+      find => {
+        repository.find(find.find).map { result =>
+            Ok(views.html.find(
+              "Find: " + find.find, Person.personFind, result
+            ))
+        }
+      }
+    )
+  }
+
 }
