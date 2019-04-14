@@ -12,6 +12,7 @@ import scala.concurrent.{ ExecutionContext, Future }
 
 @Singleton
 class HomeController @Inject()(repository: PersonRepository,
+                               repository2: MessageRepository,
                                cc: MessagesControllerComponents)
                               (implicit ec: ExecutionContext) extends MessagesAbstractController(cc) {
 
@@ -114,6 +115,35 @@ class HomeController @Inject()(repository: PersonRepository,
             Ok(views.html.find(
               "Find: " + find.find, Person.personFind, result
             ))
+        }
+      }
+    )
+  }
+
+  // メッセージ画面の表示
+  def message() = Action.async { implicit request =>
+    repository2.listMsgWithP().map { messages =>
+      Ok(views.html.message(
+        "Message List.",
+        Message.messageForm, messages
+      ))
+    }
+  }
+
+  // メッセージの作成
+  def addmessage() = Action.async { implicit request =>
+    Message.messageForm.bindFromRequest.fold(
+      errorForm => {
+        repository2.listMsgWithP().map { messages =>
+          Ok(views.html.message(
+            "ERROR.",
+            errorForm, messages
+          ))
+        }
+      },
+      message => {
+        repository2.createMsg(message.personId, message.message).map { _ =>
+          Redirect(routes.HomeController.message).flashing("success"->"エンティティを作成しました！")
         }
       }
     )
